@@ -1,0 +1,38 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://addons/state_variable_editor/state_graph_output_picker.gd" id="1_picker"]
+
+[node name="StateGraphOutputPicker" type="PopupPanel"]
+custom_minimum_size = Vector2(440, 480)
+size = Vector2i(440, 480)
+script = ExtResource("1_picker")
+
+[node name="Margin" type="MarginContainer" parent="."]
+offset_right = 440.0
+offset_bottom = 480.0
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 12
+
+[node name="Content" type="VBoxContainer" parent="Margin"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Title" type="Label" parent="Margin/Content"]
+layout_mode = 2
+text = "Connect output to state"
+
+[node name="SearchEdit" type="LineEdit" parent="Margin/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+placeholder_text = "Filter valid states"
+clear_button_enabled = true
+tooltip_text = "Filter valid output targets by state path or name."
+
+[node name="TargetList" type="ItemList" parent="Margin/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+allow_reselect = true
+tooltip_text = "Choose a state to create a new transition-owned claim and output."
