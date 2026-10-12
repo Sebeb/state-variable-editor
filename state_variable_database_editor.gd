@@ -1,7 +1,7 @@
 @tool
 extends VBoxContainer
 
-const StateGraphViewScene = preload("res://addons/state_variable_editor/state_graph_view.tscn")
+const StateGraphViewScene = preload("state_graph_view.tscn")
 
 var database = null
 var _graph_view: Control = null

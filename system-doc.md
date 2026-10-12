@@ -1,28 +1,70 @@
-# State Graph Tooling
+# Shared State Variables
 UID: sdoc-04143fc8-5396-4af5-a05f-530835807b0d
 
 ## System Design
 
-The State Graph is an editor and runtime inspection surface for the [runtime state system](../../systems/state/system-doc.md#system-design). It shows state values, claims, transitions, and their connections without imposing continuous debugging work on ordinary gameplay.
+This package owns reusable state resolution and graph tooling. A host owns its
+state definitions, game resource catalog, legacy path inventory, display policy
+and console instance. The runtime works with no console or resource catalog.
+The `master` branch consolidates Pills' runtime/editor and AdInf's compatibility
+fixes; historical editor-only consumers may continue using pinned `main`.
 
-The in-game overlay has three presentation states: hidden, shown, and transparent overlay. Hidden means absent, not merely invisible: no graph scene exists, no runtime graph subscription remains, and no graph processing occurs. Opening it creates the view and takes one full snapshot. Subsequent changes arrive as versioned deltas. Returning to hidden disconnects and frees the overlay.
+Each variable has a DEFAULT value, optional BASE, ordinary claims and optional
+OVERRIDE. Claims contribute through the configured resolver. Muting removes a
+claim's contribution without deleting its membership. The enum ordering is
+stable for existing serialized resources, with VECTOR3 and MERGE appended.
+Batches delay observers until the complete mutation sequence is resolved.
+Entity runtimes use independent scope addresses and can be torn down explicitly.
+The coordinator routes cross-scope transition claims without making game
+singletons part of the package.
 
-The editor bottom panel follows the same subscription model. Active debugger sessions subscribe only while the State Graph panel is visible. A newly active subscription requests one full snapshot, then applies deltas until the session stops, the panel closes, or a schema/topology mismatch requires resynchronization.
+Resource declarations make an exported resource property the source of its
+shipped DEFAULT. Editor baking produces a primitive declaration artifact.
+Runtime consumes that artifact and authored databases without scanning game
+files. Generated definitions remain an in-memory composite and cannot be saved
+back into the authored database. Default writers validate temporary files before
+replacing originals, preserving source formatting.
+
+The graph receives an activation snapshot followed by versioned deltas.
+Hidden runtime overlays contain no graph scene. Transparent graph controls are
+recursively input inert. The editor panel subscribes only while visible.
+Runtime graph scripts use an Object undo-redo reference so shipped builds do
+not require the editor-only EditorUndoRedoManager type.
 
 ## System Implementation
 
-`state_graph_debugger_plugin.gd` manages debugger sessions and sends `state_graph:subscribe`, `state_graph:unsubscribe`, and `state_graph:request_snapshot`. It captures `state_graph:snapshot` and `state_graph:delta` messages. `plugin.gd` derives subscription state from play state and bottom-panel visibility.
+`runtime/state_variable.gd` resolves layers and claims. Its compatibility
+`set_claim_value` aliases keyed claims. `set_current_value` replaces ordinary
+claims, retains BASE/OVERRIDE, and returns a removable anonymous claim ID;
+`reset` clears BASE and ordinary claims, retaining OVERRIDE as in Pills. The exported legacy `persistent`
+field in `state_variable_def.gd` remains available for host preference policy.
+`state_machine_runtime.gd` owns batches, transition evaluation and subscriptions;
+`state_machine_coordinator.gd` and scope/template resources manage entity state.
 
-`state_graph_view.gd` stores runtime state and transition maps, graph-node indexes, and sidebar-item indexes. `apply_runtime_delta()` replaces only supplied snapshots, refreshes only their sidebar rows and graph nodes, and preserves unaffected node instances. State claim rows are rebuilt only when the local claim membership signature changes; value-only updates edit existing claim row content. Runtime claim IDs are excluded from the global structure signature.
+`runtime/state_store.gd` binds runtime access, optional console integration,
+persistence and graph messages. Hosts can subclass it: initialization calls
+`_initialize_host_defaults` before preference loading within the startup batch.
+AdInf supplies its old DEFAULT preference format and platform UI scale through
+that adapter. The package's generic modern save uses BASE/OVERRIDE; legacy
+migration needs the host manifest and preserves files if it is absent.
 
-The view has no state snapshot polling or JSON hashing. Its `_process()` method is limited to visual animation, connection drawing, compact-mode updates, and layout capture, and processing is disabled whenever the control is not visible in the tree.
+`state_resource_catalog.gd`, `state_binding_index.gd`, `state_console.gd` and
+`state_store_access.gd` are explicit adapter boundaries. See README for provider
+methods and settings. Providers are optional. Binding rename plans validate
+resources before saving, roll back on failed saves, and migrate saved state keys.
+The generated bake is `res://data/state/generated_state_variables.gd` and must
+be included in an exported game's resource set.
 
-Connection endpoints are regenerated from the indexed visible nodes after a delta. Full reconstruction remains available for full snapshots, topology/layout operations, relation visibility filters, or version recovery. Auto-arrangement uses directed state-to-transition-to-state ranks so cascades remain left-to-right while related branches preserve their seeded vertical order.
+`state_graph_view.gd` owns graph indexes, claim rows, scopes, relation filtering
+and layout. `state_graph_debugger_plugin.gd` exchanges subscribe/unsubscribe,
+request_snapshot, snapshot and delta messages. `plugin.gd` exposes the graph
+through cross-addon groups without depending on a particular game's editor.
 
-`tests/logot_cases/state_graph_runtime_delta_test.gd` verifies lazy lifecycle, the single activation snapshot, delta-only updates, node identity preservation, and teardown. `state_graph_auto_arrange_hybrid_test.gd` and `state_graph_relation_visibility_test.gd` cover ranked layout and visibility filtering.
-
-`plugin.gd` registers its dock `StateGraphView` and itself into the `state_graph_dock_view` and `state_graph_editor_plugin` scene-tree groups so other addons with no direct reference (currently `addons/pill_editor`) can reach the live instances through `get_tree().get_first_node_in_group(...)`, the established cross-addon lookup convention already used for gameplay singletons elsewhere in this repo. `plugin.gd` exposes `reveal_and_focus_node(node_id)` as the public bridge for that use: it makes the bottom panel item visible, then calls the dock's existing `show_relevant`/`focus_node`.
-
-`state_graph_view.gd` exposes three public members specifically for external embedding outside the graph canvas: `build_embedded_output_rows(transition_id)` returns one transition's Outputs section built from the exact same row/value-editor/commit/undo/save code paths the graph's own transition nodes use, with a `show_port` flag on the underlying `_build_transition_output_row` so embedded rows omit connection sockets (embedded rows are not part of the connection canvas); `open_output_picker_for_transition(transition_id, ...)` opens the same searchable output-target picker the graph's drag-to-connect flow uses, so a click-driven "Add Output" entry point commits through the graph's own commit/undo/save path; and `database_changed` is emitted from the single commit funnel `_apply_database_snapshot` after every successful do/undo, so an embedder knows when to refresh rows it built via `build_embedded_output_rows`.
-
-The output-value commit path's callable must be built as a closure capturing `transition_id`/`output_index`, not `Callable(self, "_commit_transition_output_value").bind(transition_id, output_index)`: `Callable.bind()` appends bound arguments after the caller-supplied value rather than before it, which scrambles `_commit_transition_output_value`'s `(transition_id, output_index, value)` parameter order and silently drops the edit. This previously affected inline output-value edits in the graph itself, not only external embedders.
+`tests/run.py` creates a disposable strict-warning Godot host, imports the editor
+and runs `tests/contracts.gd`. Contracts cover layers, removable legacy IDs,
+muting, VECTOR3/MERGE, batching, scope isolation/teardown, database authoring,
+missing-manifest protection, configured alias migration, provider bake and
+owner resolution, binding rename, and graph visibility/input lifecycle.
+`provenance.json` records upstream inputs; the package does not include Pills'
+generated data, game catalog or path inventory. Manual verification steps are
+maintained in README and each consumer's change record.

@@ -1,0 +1,298 @@
+{
+  "pills_commit": "844786f6",
+  "adinf_addon_commit": "19d2b13b",
+  "files": {
+    "runtime/state_default_database_writer.gd.uid": {
+      "source": "systems/state/state_default_database_writer.gd.uid",
+      "sha256": "04575825eb49c082bf10a096b961354b794bebe08c7ef7244c42ff9f1c216702"
+    },
+    "runtime/state_path_aliases.gd": {
+      "source": "systems/state/state_path_aliases.gd",
+      "sha256": "f54902b67172cdd29154ae79bc5e958e21951dcaa8b99b9cd37c9638efc63ba2"
+    },
+    "runtime/state_default_database_writer.gd": {
+      "source": "systems/state/state_default_database_writer.gd",
+      "sha256": "d45b3687621de511fdf19471bc18c9cc7aab180161a1f793f954781fd6f87808"
+    },
+    "runtime/state_variable.gd.uid": {
+      "source": "systems/state/state_variable.gd.uid",
+      "sha256": "b04c94118635b5e474b5e18c518a3e456897771ce786a03a2996e7d09e918c61"
+    },
+    "runtime/state_transition_scope.gd.uid": {
+      "source": "systems/state/state_transition_scope.gd.uid",
+      "sha256": "068c37a49b5e7f5abc50425995a906b9c910138b3665e1dff2d2f7bc9887bc81"
+    },
+    "runtime/state_path_aliases.gd.uid": {
+      "source": "systems/state/state_path_aliases.gd.uid",
+      "sha256": "1a4e2fce43af731790d27af0d04d3beaabef8b5f123f934ae68887f51895bbbc"
+    },
+    "runtime/state_console_notifier.gd.uid": {
+      "source": "systems/state/state_console_notifier.gd.uid",
+      "sha256": "fc42aa3a232438190318a9608106877c6b48c092ddae1fa00e405d1f00bcfb54"
+    },
+    "runtime/state_claim.gd": {
+      "source": "systems/state/state_claim.gd",
+      "sha256": "0c28fe38222b1370463cfb605940f8730094a3db3cae86516fa29c40f0a6e08b"
+    },
+    "runtime/state_graph_debug_overlay.gd.uid": {
+      "source": "systems/state/state_graph_debug_overlay.gd.uid",
+      "sha256": "a15b6f5e94148a65d5280663b398b79227bbcb1ac48f51321ec868e6d8df70b8"
+    },
+    "runtime/state_machine_scope_address.gd.uid": {
+      "source": "systems/state/state_machine_scope_address.gd.uid",
+      "sha256": "cefa958d34f7c9fb705e6e048c371192a87ad7eeadf2d130a91ae371d19da8d8"
+    },
+    "runtime/state_variable_case_def.gd.uid": {
+      "source": "systems/state/state_variable_case_def.gd.uid",
+      "sha256": "f7839cff5c8086de2302d2b54309411d24439589f96bbb371591b35d33161f02"
+    },
+    "runtime/state_default_resource_writer.gd": {
+      "source": "systems/state/state_default_resource_writer.gd",
+      "sha256": "a5489de11de842f802559637bb6c57993febf7ca3bf500d9dff2feb356f384ab"
+    },
+    "runtime/state_variable_baker.gd.uid": {
+      "source": "systems/state/state_variable_baker.gd.uid",
+      "sha256": "f9b39bdb33f8570074a0c8ea204b8f8e97363523369edf12c30c8234e7dde3c4"
+    },
+    "runtime/state_variable_rename.gd": {
+      "source": "systems/state/state_variable_rename.gd",
+      "sha256": "1288fd54eb56d9c18724afb18d889d243420dd4c08d01b7652477afe897fcee0"
+    },
+    "runtime/state_variable_change_def.gd.uid": {
+      "source": "systems/state/state_variable_change_def.gd.uid",
+      "sha256": "077088984ad89ad50984e4e4b462d9a23ca06b28447061a214732b25c1f478f3"
+    },
+    "runtime/state_variable_database.gd": {
+      "source": "systems/state/state_variable_database.gd",
+      "sha256": "71ae9754330616b385163bd4e2efebcb90614e594a88d2fd2d962c9bbbdc1b6e"
+    },
+    "runtime/state_transition_scope.gd": {
+      "source": "systems/state/state_transition_scope.gd",
+      "sha256": "192489fc0ccf367eb6c0a849f3dfb77c3830142bc517fbc1569183ddd9af630e"
+    },
+    "runtime/state_variable_def.gd": {
+      "source": "systems/state/state_variable_def.gd",
+      "sha256": "095bcd520402d136c764e08a267ab387c494701fed78ada49541e730ec49212a"
+    },
+    "runtime/state_claim_slot_def.gd": {
+      "source": "systems/state/state_claim_slot_def.gd",
+      "sha256": "2bdc25f8d6db01e8ca36ff446d9c44f40811ebfd6f332e0eda7260cece70590f"
+    },
+    "runtime/state_machine_coordinator.gd.uid": {
+      "source": "systems/state/state_machine_coordinator.gd.uid",
+      "sha256": "7090f73fcadc24e47b8eeb14b3d7d71e6ba17ff0827a4f8404f86e0b0ebc302e"
+    },
+    "runtime/state_variable_database.gd.uid": {
+      "source": "systems/state/state_variable_database.gd.uid",
+      "sha256": "23e78769a79ad19fe57d62d95e642344780d2d88385ead2c8c42ac2cf8793a1c"
+    },
+    "runtime/state_console_notifier.gd": {
+      "source": "systems/state/state_console_notifier.gd",
+      "sha256": "4eb7b7054f9e779f0c58c161c9200cdbe6e56f3b7ad02de93e533bb61a4b01af"
+    },
+    "runtime/state_transition_def.gd": {
+      "source": "systems/state/state_transition_def.gd",
+      "sha256": "e75c71b4eb572d0180dcf6a40274f66e1e4020aa1b67e18aa574f9a7bcb37c4d"
+    },
+    "runtime/state_machine_runtime.gd.uid": {
+      "source": "systems/state/state_machine_runtime.gd.uid",
+      "sha256": "c7ea6e9ce5abaa883926a54bb46de14e1c0ef7d96408ac11bfff0ec2e59ecb4b"
+    },
+    "runtime/state_variable_change_def.gd": {
+      "source": "systems/state/state_variable_change_def.gd",
+      "sha256": "b55cc46b6e459e47c5bbb8b7229b122e77f6c9b82de41befd287340d2aa335ad"
+    },
+    "runtime/state_claim.gd.uid": {
+      "source": "systems/state/state_claim.gd.uid",
+      "sha256": "738143be00c13b63e3ff04718d784b04d21cf1469d13015d337179542d545373"
+    },
+    "runtime/state_transition_condition_def.gd.uid": {
+      "source": "systems/state/state_transition_condition_def.gd.uid",
+      "sha256": "cb83f8673b902bf15dd10f15fdb60363bf1608b60c1b428d8a3e24ca8c55cfef"
+    },
+    "runtime/entity_state_machine_template.gd.uid": {
+      "source": "systems/state/entity_state_machine_template.gd.uid",
+      "sha256": "13858966b60fc9c9a015fb3290879e34cf70c564578803e5482d4aa71728f408"
+    },
+    "runtime/state_variable_generator.gd": {
+      "source": "systems/state/state_variable_generator.gd",
+      "sha256": "678d29c41b07c8bd37a3c52c4f943b932409ade0d26522aa4adbd33d23b937ed"
+    },
+    "runtime/state_graph_debug_overlay.gd": {
+      "source": "systems/state/state_graph_debug_overlay.gd",
+      "sha256": "80ad0dd81a4e0910c62f2494baf29386a96d1f153fec9bf75f9433695cb3a7d7"
+    },
+    "runtime/state_variable_baker.gd": {
+      "source": "systems/state/state_variable_baker.gd",
+      "sha256": "5b830a390c5dbf70c581b73b3c56814ea83d022ca1a1e0e5f280e38a647e6653"
+    },
+    "runtime/state_machine_runtime.gd": {
+      "source": "systems/state/state_machine_runtime.gd",
+      "sha256": "f02bd40dcbc7832bf5f430b2b4eface000daebfe7c9349134cc2b3418629ca10"
+    },
+    "runtime/state_transition_def.gd.uid": {
+      "source": "systems/state/state_transition_def.gd.uid",
+      "sha256": "bc61baec3ca1688416220f07a6c73b66aaddb28c01142f9502666cf99806a823"
+    },
+    "runtime/entity_local_state_machine.gd.uid": {
+      "source": "systems/state/entity_local_state_machine.gd.uid",
+      "sha256": "fde7fcafc4222f7c2434b67680c95e017c834d53e0879e3f7364ba3889559d9d"
+    },
+    "runtime/state_variable.gd": {
+      "source": "systems/state/state_variable.gd",
+      "sha256": "e9d0de01d19fcebd848c6270a0fb6e0240d143f939638771cea3b0a88cb30cc2"
+    },
+    "runtime/state_default_resource_writer.gd.uid": {
+      "source": "systems/state/state_default_resource_writer.gd.uid",
+      "sha256": "8af5e77ceefd4083e2268e033b8afa8dcbf0ade6626abe30a7df8ec6d655ef34"
+    },
+    "runtime/state_value_resolution.gd": {
+      "source": "systems/state/state_value_resolution.gd",
+      "sha256": "42ef203cc6fe58a6867587cdcdf4d819857e238a6221d174d365d2790ab90f1e"
+    },
+    "runtime/state_variable_generator.gd.uid": {
+      "source": "systems/state/state_variable_generator.gd.uid",
+      "sha256": "cdfa2868bdf4b488293a28873a1e054f426203a8e8d80e6e8d8fe7c1bdcdb792"
+    },
+    "runtime/state_variable_case_def.gd": {
+      "source": "systems/state/state_variable_case_def.gd",
+      "sha256": "e7037f835a278154515049ce5ea2e61d22a635dcb5021feb9d6bb5b41bd50825"
+    },
+    "runtime/entity_local_state_machine.gd": {
+      "source": "systems/state/entity_local_state_machine.gd",
+      "sha256": "3ce160b7c80d20c8ec2c61b6b880e00d703cfa2e51929fb0b3dda9009953ad8c"
+    },
+    "runtime/state_claim_slot_def.gd.uid": {
+      "source": "systems/state/state_claim_slot_def.gd.uid",
+      "sha256": "c9898406386942ed7e00f251fa093af190667f98c19afc09fa13e52c24c21275"
+    },
+    "runtime/state_machine_scope_address.gd": {
+      "source": "systems/state/state_machine_scope_address.gd",
+      "sha256": "829560b4cac43e9e67963db394b4c990c287c81d78c5a284af6648477254552f"
+    },
+    "runtime/state_transition_output_def.gd.uid": {
+      "source": "systems/state/state_transition_output_def.gd.uid",
+      "sha256": "7c6014d8f255bcf3df67a967708ef0b873ebfd956415b1d7906b946cd7731df9"
+    },
+    "runtime/entity_state_machine_template.gd": {
+      "source": "systems/state/entity_state_machine_template.gd",
+      "sha256": "443b57726426cc3c56241a37e227c3e1d7e9ebed85ee75d088838c0aa27ece58"
+    },
+    "runtime/state_variable_def.gd.uid": {
+      "source": "systems/state/state_variable_def.gd.uid",
+      "sha256": "e5ad7df9cc5a6f3b850c83b066a77d9c2280e2f02822066d6616ba32bf6910c6"
+    },
+    "runtime/state_variable_rename.gd.uid": {
+      "source": "systems/state/state_variable_rename.gd.uid",
+      "sha256": "b6f357d752eba62d5678ece8eef044400ddea6622618218ffec118c69e9e517e"
+    },
+    "runtime/state_transition_output_def.gd": {
+      "source": "systems/state/state_transition_output_def.gd",
+      "sha256": "3824da68536800e9df07cc340f751af192a132f70d704ca1a72d27f6a4244e88"
+    },
+    "runtime/state_value_resolution.gd.uid": {
+      "source": "systems/state/state_value_resolution.gd.uid",
+      "sha256": "575423ad212f6775ec3a405fc17ad2237642ce8b651c85931a30f70c22bd178e"
+    },
+    "runtime/state_machine_coordinator.gd": {
+      "source": "systems/state/state_machine_coordinator.gd",
+      "sha256": "d9788aa61fae0dfdd5d225cdf175aa94f37f4c296bd4678343610d1d73e7384c"
+    },
+    "runtime/state_transition_condition_def.gd": {
+      "source": "systems/state/state_transition_condition_def.gd",
+      "sha256": "0b98736201c949f221443c22359d9e0808bf75871c505b8fa97d176eb261b0d6"
+    },
+    "runtime/assets/muted-claim.svg.import": {
+      "source": "systems/state/assets/muted-claim.svg.import",
+      "sha256": "3f0cef8c40cdbee6fee30f02fdec399be54010d183e76786b2a0ddb8630df99a"
+    },
+    "runtime/assets/muted-claim.svg": {
+      "source": "systems/state/assets/muted-claim.svg",
+      "sha256": "a1f64b9f5d0276a603c6832ba74818b3859298482f192019f1cd596542a2816e"
+    },
+    "runtime/migrations/legacy_persistent_state_v1/legacy_persistent_state_v1.gd.uid": {
+      "source": "systems/state/migrations/legacy_persistent_state_v1/legacy_persistent_state_v1.gd.uid",
+      "sha256": "a63f6c0f638bcf6e336d1d6ea35c9da2914cf0041c1723e5f0a1afaa2420f6a2"
+    },
+    "runtime/migrations/legacy_persistent_state_v1/legacy_persistent_state_v1.gd": {
+      "source": "systems/state/migrations/legacy_persistent_state_v1/legacy_persistent_state_v1.gd",
+      "sha256": "6481079119bc192208aac32a3f32f3b19445a4abda29473a1ec36abb32e6c4b6"
+    },
+    "runtime/migrations/legacy_persistent_state_v1/legacy_persistent_path_manifest.gd.uid": {
+      "source": "systems/state/migrations/legacy_persistent_state_v1/legacy_persistent_path_manifest.gd.uid",
+      "sha256": "e23bc4ae785ec44b97ec40cb545f6ac0d9ba4288b1c2a705a6bdb3afa697e264"
+    },
+    "runtime/migrations/legacy_persistent_state_v1/legacy_persistent_path_manifest.gd": {
+      "source": "systems/state/migrations/legacy_persistent_state_v1/legacy_persistent_path_manifest.gd",
+      "sha256": "b02e85911a4fa77ffe9849189a8c9f40f67171a669d23c7e4a959b3a03249cdf"
+    },
+    "state_graph_output_picker.gd": {
+      "source": "addons/state_variable_editor/state_graph_output_picker.gd",
+      "sha256": "7b5251b7842519ff66b3046d5f14a0ed3710147ac5522c1490c83f4c1263cba8"
+    },
+    "plugin.gd": {
+      "source": "addons/state_variable_editor/plugin.gd",
+      "sha256": "44c1fbacce1861c91a3a1c34cd7b9555dd3d6aeefd6dc3e4f14887c39756eb79"
+    },
+    "state_variable_inspector_plugin.gd": {
+      "source": "addons/state_variable_editor/state_variable_inspector_plugin.gd",
+      "sha256": "8abc96f210d4ed06dca843a591271de2bd03974830d02cead34efc1019b5c036"
+    },
+    "state_variable_database_editor.gd.uid": {
+      "source": "addons/state_variable_editor/state_variable_database_editor.gd.uid",
+      "sha256": "6d268e57f3d98e41ff523afd5472647bb086dfc61118c39b70a847c125605992"
+    },
+    "state_graph_output_picker.gd.uid": {
+      "source": "addons/state_variable_editor/state_graph_output_picker.gd.uid",
+      "sha256": "ddf83285394e68864d2d1055151bc994386f1369fed613dc5af3a778a917ad78"
+    },
+    "state_graph_output_picker.tscn": {
+      "source": "addons/state_variable_editor/state_graph_output_picker.tscn",
+      "sha256": "4102546d342cfa726c6908b430dd5eabfa000177a32e8fc64c02768c099bbb58"
+    },
+    "state_graph_debugger_plugin.gd.uid": {
+      "source": "addons/state_variable_editor/state_graph_debugger_plugin.gd.uid",
+      "sha256": "e5b24a7b8b5f76b91fefd147e5543b3a1c33bd793a4908730e390dd08ce30075"
+    },
+    "plugin.cfg": {
+      "source": "addons/state_variable_editor/plugin.cfg",
+      "sha256": "fef758756c2bf91ea498fcff23be6c84a5512767fa61bf1ab627f95938cbc4c0"
+    },
+    "state_variable_database_editor.gd": {
+      "source": "addons/state_variable_editor/state_variable_database_editor.gd",
+      "sha256": "d34c4248a5bf01fc5f62a1684244a7b3707fc3317a2ff123839e5b84ec4a2253"
+    },
+    "plugin.gd.uid": {
+      "source": "addons/state_variable_editor/plugin.gd.uid",
+      "sha256": "b410a7b376cdd1253d11547a60433bbb9365731cf3306710bda544e027d3f06e"
+    },
+    "state_graph_debugger_plugin.gd": {
+      "source": "addons/state_variable_editor/state_graph_debugger_plugin.gd",
+      "sha256": "7eb517b51d8e2e48cad27fa955103932c7cb2d0b411a8e777f5f97a115ec7946"
+    },
+    "state_graph_view.gd": {
+      "source": "addons/state_variable_editor/state_graph_view.gd",
+      "sha256": "120810922226d0cb90d6dc3bb40dc7fee7a6f8380e530e6178b86e64a0cdb3c4"
+    },
+    "state_graph_view.tscn": {
+      "source": "addons/state_variable_editor/state_graph_view.tscn",
+      "sha256": "800e8cc62a6a68ac981293cfd0619436c74fa6a96d0f9287b1c5a857d11d1391"
+    },
+    "state_graph_view.gd.uid": {
+      "source": "addons/state_variable_editor/state_graph_view.gd.uid",
+      "sha256": "7c9c65c6952e7a1236303763311795a8d29ab8661ca5b3013c2c4f507b9ae0df"
+    },
+    "state_variable_inspector_plugin.gd.uid": {
+      "source": "addons/state_variable_editor/state_variable_inspector_plugin.gd.uid",
+      "sha256": "61c22d223cdfffd48655737035221190eb9fd86309d5e02173b1546843435d15"
+    },
+    "runtime/state_store.gd": {
+      "source": "systems/autoload/state_store.gd",
+      "sha256": "b58ec33f0c5a57bd98ccfe4001865e3ae753a8302ae1c31b7ac977484d82ee82"
+    },
+    "runtime/state_declaring_resource.gd": {
+      "source": "shared/state_declaring_resource.gd",
+      "sha256": "9f302f3623fde5f86fd1293f3198087530d362ba3ea9a231c96bf4db74f8cb61"
+    }
+  }
+}

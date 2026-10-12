@@ -9,14 +9,14 @@ signal runtime_scope_selected(scope_key: StringName)
 ## they built via [method build_embedded_output_rows].
 signal database_changed()
 
-const StateClaimSlotDefScript = preload("res://systems/state/state_claim_slot_def.gd")
-const StateTransitionConditionDefScript = preload("res://systems/state/state_transition_condition_def.gd")
-const StateTransitionDefScript = preload("res://systems/state/state_transition_def.gd")
-const StateTransitionOutputDefScript = preload("res://systems/state/state_transition_output_def.gd")
-const StateVariableDefScript = preload("res://systems/state/state_variable_def.gd")
-const StateVariableRenameScript = preload("res://systems/state/state_variable_rename.gd")
-const PillActivationBindingIndexScript = preload("res://systems/pills/pill_activation_binding_index.gd")
-const StateGraphOutputPickerScene = preload("res://addons/state_variable_editor/state_graph_output_picker.tscn")
+const StateClaimSlotDefScript = preload("runtime/state_claim_slot_def.gd")
+const StateTransitionConditionDefScript = preload("runtime/state_transition_condition_def.gd")
+const StateTransitionDefScript = preload("runtime/state_transition_def.gd")
+const StateTransitionOutputDefScript = preload("runtime/state_transition_output_def.gd")
+const StateVariableDefScript = preload("runtime/state_variable_def.gd")
+const StateVariableRenameScript = preload("runtime/state_variable_rename.gd")
+const StateBindingIndex = preload("runtime/state_binding_index.gd")
+const StateGraphOutputPickerScene = preload("state_graph_output_picker.tscn")
 
 const _STATE_NODE_PREFIX := "state:"
 const _TRANSITION_NODE_PREFIX := "transition:"
@@ -29,8 +29,8 @@ const _AUTHORING_TEMPLATE_SCOPE_PREFIX := "template/"
 # Roots scanned for authored EntityStateMachineTemplate resources so the
 # authoring selector can list each entity type's default local machine.
 const _AUTHORING_TEMPLATE_SCAN_ROOTS := ["res://data/"]
-const EntityStateMachineTemplateScript = preload("res://systems/state/entity_state_machine_template.gd")
-const StateVariableDatabaseScript = preload("res://systems/state/state_variable_database.gd")
+const EntityStateMachineTemplateScript = preload("runtime/entity_state_machine_template.gd")
+const StateVariableDatabaseScript = preload("runtime/state_variable_database.gd")
 const _PRESENTATION_MODE_SHOWN := "shown"
 const _PRESENTATION_MODE_TRANSPARENT_OVERLAY := "transparent_overlay"
 const _STATE_TO_TRANSITION_COLOR := Color(0.52, 0.52, 0.56, 0.72)
@@ -81,7 +81,9 @@ const _STATE_STORE_DEFAULT_LAYER := 0
 
 var database = null
 var state_store: Node = null
-var _undo_redo: EditorUndoRedoManager = null
+var _graph_input_control_state: Dictionary = {}
+
+var _undo_redo: Object = null
 var runtime_snapshot: Dictionary = {}
 var persist_runtime_layout := false
 var presentation_mode := _PRESENTATION_MODE_SHOWN
@@ -287,7 +289,7 @@ func set_database(value) -> void:
 	_rebuild_scope_selector()
 
 
-func set_undo_redo(value: EditorUndoRedoManager) -> void:
+func set_undo_redo(value: Object) -> void:
 	_undo_redo = value
 
 
@@ -711,50 +713,111 @@ func set_presentation_mode(mode: String) -> void:
 	presentation_mode = _normalize_presentation_mode(mode)
 	if _background_dim == null:
 		return
+	if presentation_mode == "hidden" or presentation_mode == _PRESENTATION_MODE_TRANSPARENT_OVERLAY:
+		_clear_active_pointer_state()
 	match presentation_mode:
 		"hidden":
 			visible = false
+			process_mode = Node.PROCESS_MODE_DISABLED
+			mouse_filter = Control.MOUSE_FILTER_IGNORE
+			_background_dim.color = Color(0.0, 0.0, 0.0, 0.0)
+			modulate = Color.WHITE
+			_set_graph_input_enabled(false)
+			_apply_graph_surface_visibility(true)
 		_PRESENTATION_MODE_TRANSPARENT_OVERLAY:
+			process_mode = Node.PROCESS_MODE_INHERIT
 			visible = true
 			mouse_filter = Control.MOUSE_FILTER_IGNORE
 			_background_dim.color = Color(0.0, 0.0, 0.0, 0.0)
 			modulate = Color(1.0, 1.0, 1.0, 0.78)
-			if _sidebar_split != null:
-				_sidebar_split.mouse_filter = Control.MOUSE_FILTER_IGNORE
-			if _graph_root != null:
-				_graph_root.mouse_filter = Control.MOUSE_FILTER_IGNORE
-			if _toolbar != null:
-				_toolbar.visible = false
-			if _graph_edit != null:
-				_graph_edit.mouse_filter = Control.MOUSE_FILTER_IGNORE
-				_graph_edit.minimap_enabled = false
-				_graph_edit.focus_mode = Control.FOCUS_NONE
-				_graph_edit.release_focus()
+			_set_graph_input_enabled(false)
 			_apply_graph_surface_visibility(true)
-			if _sidebar_tree != null:
-				_sidebar_tree.focus_mode = Control.FOCUS_NONE
-				_sidebar_tree.release_focus()
-				_sidebar_tree.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		_:
+			process_mode = Node.PROCESS_MODE_INHERIT
 			visible = true
 			mouse_filter = Control.MOUSE_FILTER_STOP
 			_background_dim.color = Color(0.0, 0.0, 0.0, 0.45)
 			modulate = Color.WHITE
-			if _sidebar_split != null:
-				_sidebar_split.mouse_filter = Control.MOUSE_FILTER_STOP
-			if _graph_root != null:
-				_graph_root.mouse_filter = Control.MOUSE_FILTER_PASS
-			if _toolbar != null:
-				_toolbar.visible = true
-			if _graph_edit != null:
-				_graph_edit.mouse_filter = Control.MOUSE_FILTER_PASS
-				_graph_edit.minimap_enabled = true
-				_graph_edit.focus_mode = Control.FOCUS_ALL
+			_set_graph_input_enabled(true)
 			_apply_graph_surface_visibility(false)
-			if _sidebar_tree != null:
-				_sidebar_tree.focus_mode = Control.FOCUS_ALL
-				_sidebar_tree.mouse_filter = Control.MOUSE_FILTER_PASS
-	_sync_processing_state()
+	queue_redraw()
+
+
+func _set_graph_input_enabled(enabled: bool) -> void:
+	if enabled:
+		_restore_graph_descendant_input_state()
+		mouse_filter = Control.MOUSE_FILTER_STOP
+	if _sidebar_split != null:
+		_sidebar_split.mouse_filter = Control.MOUSE_FILTER_STOP if enabled else Control.MOUSE_FILTER_IGNORE
+	if _graph_root != null:
+		_graph_root.mouse_filter = Control.MOUSE_FILTER_PASS if enabled else Control.MOUSE_FILTER_IGNORE
+	if _toolbar != null:
+		_toolbar.visible = enabled
+	if _graph_edit != null:
+		_graph_edit.mouse_filter = Control.MOUSE_FILTER_PASS if enabled else Control.MOUSE_FILTER_IGNORE
+		_graph_edit.minimap_enabled = enabled
+		_graph_edit.focus_mode = Control.FOCUS_ALL if enabled else Control.FOCUS_NONE
+		if !enabled:
+			_graph_edit.release_focus()
+	if _sidebar_tree != null:
+		_sidebar_tree.mouse_filter = Control.MOUSE_FILTER_PASS if enabled else Control.MOUSE_FILTER_IGNORE
+		_sidebar_tree.focus_mode = Control.FOCUS_ALL if enabled else Control.FOCUS_NONE
+		if !enabled:
+			_sidebar_tree.release_focus()
+	if !enabled:
+		_force_graph_descendant_input_inert()
+
+
+func _force_graph_descendant_input_inert() -> void:
+	for control in _collect_control_descendants(self):
+		if not _graph_input_control_state.has(control):
+			_graph_input_control_state[control] = {
+				"mouse_filter": control.mouse_filter,
+				"focus_mode": control.focus_mode,
+			}
+		control.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		control.focus_mode = Control.FOCUS_NONE
+		if control.has_focus():
+			control.release_focus()
+
+
+func _restore_graph_descendant_input_state() -> void:
+	for control_variant in _graph_input_control_state.keys():
+		var control := control_variant as Control
+		if control == null or !is_instance_valid(control):
+			continue
+		var state: Dictionary = _graph_input_control_state.get(control, {})
+		control.mouse_filter = int(state.get("mouse_filter", control.mouse_filter))
+		control.focus_mode = int(state.get("focus_mode", control.focus_mode))
+	_graph_input_control_state.clear()
+
+
+func _collect_control_descendants(root: Node) -> Array[Control]:
+	var controls: Array[Control] = []
+	if root is Control:
+		controls.append(root as Control)
+	for child in root.get_children():
+		controls.append_array(_collect_control_descendants(child))
+	return controls
+
+
+func _is_graph_input_enabled() -> bool:
+	return presentation_mode != "hidden" and presentation_mode != _PRESENTATION_MODE_TRANSPARENT_OVERLAY and is_inside_tree() and is_visible_in_tree()
+
+
+func _clear_active_pointer_state() -> void:
+	_drag_connection_origin.clear()
+	_drag_connection_hover.clear()
+	_drag_claim_origin.clear()
+	if _canvas_context_menu != null:
+		_canvas_context_menu.hide()
+	if _node_context_menu != null:
+		_node_context_menu.hide()
+	if _sidebar_context_menu != null:
+		_sidebar_context_menu.hide()
+	if _overlay != null:
+		_overlay.queue_redraw()
+
 
 
 func _apply_graph_surface_visibility(transparent: bool) -> void:
@@ -969,7 +1032,7 @@ func show_relevant(start_node_id: String) -> bool:
 	var related: Dictionary = {start_node_id: true}
 	var queue: Array[String] = [start_node_id]
 	while not queue.is_empty():
-		var current := queue.pop_front()
+		var current: String = queue.pop_front()
 		for neighbor_variant in adjacency.get(current, []):
 			var neighbor := str(neighbor_variant)
 			if related.has(neighbor):
@@ -3217,7 +3280,7 @@ func _auto_arrange_ranked_nodes(states: Array[Dictionary], transitions: Array[Di
 	queue.sort_custom(func(a: String, b: String): return float(seed_y.get(a, 0.0)) < float(seed_y.get(b, 0.0)))
 	var visited: Dictionary = {}
 	while not queue.is_empty():
-		var node_id := queue.pop_front()
+		var node_id: String = queue.pop_front()
 		visited[node_id] = true
 		for target_variant in adjacency.get(node_id, []):
 			var target := str(target_variant)
@@ -3818,6 +3881,8 @@ func _find_port_at_viewport_position(viewport_position: Vector2) -> Dictionary:
 
 
 func _on_port_gui_input(event: InputEvent, port: Control) -> void:
+	if !_is_graph_input_enabled():
+		return
 	if presentation_mode == _PRESENTATION_MODE_TRANSPARENT_OVERLAY or database == null or port == null:
 		return
 	if not (event is InputEventMouseButton):
@@ -3841,6 +3906,8 @@ func _begin_drag_connection(origin: Dictionary, viewport_position: Vector2) -> v
 
 
 func _on_claim_handle_gui_input(event: InputEvent, state_path: String, slot_id: String) -> void:
+	if !_is_graph_input_enabled():
+		return
 	if presentation_mode == _PRESENTATION_MODE_TRANSPARENT_OVERLAY or database == null:
 		return
 	if not (event is InputEventMouseButton):
@@ -3873,6 +3940,8 @@ func _find_claim_drop_target_at_viewport_position(viewport_position: Vector2) ->
 
 
 func _on_graph_edit_gui_input(event: InputEvent) -> void:
+	if !_is_graph_input_enabled():
+		return
 	if presentation_mode == _PRESENTATION_MODE_TRANSPARENT_OVERLAY or database == null:
 		return
 	if event is InputEventKey:
@@ -3898,6 +3967,8 @@ func _on_graph_edit_gui_input(event: InputEvent) -> void:
 
 
 func _input(event: InputEvent) -> void:
+	if !_is_graph_input_enabled():
+		return
 	if not _drag_claim_origin.is_empty():
 		if presentation_mode == _PRESENTATION_MODE_TRANSPARENT_OVERLAY:
 			_drag_claim_origin.clear()
@@ -4372,13 +4443,13 @@ func _apply_database_snapshot(states: Array, transitions: Array, bindings: Dicti
 		return false
 	for resource_path_variant in bindings.keys():
 		var resource_path := str(resource_path_variant)
-		var properties := resources.get(resource_path) as PillProperties
-		if properties == null:
+		var properties := resources.get(resource_path) as Resource
+		if !StateBindingIndex.is_binding_resource(properties):
 			continue
 		var next_path := StringName(str(bindings[resource_path_variant]))
-		if properties.activation_state_path == next_path:
+		if properties.get(StateBindingIndex.get_property_name()) == next_path:
 			continue
-		properties.activation_state_path = next_path
+		properties.set(StateBindingIndex.get_property_name(), next_path)
 		if ResourceSaver.save(properties, resource_path) != OK:
 			if allow_rollback:
 				_apply_database_snapshot(before_states, before_transitions, before_bindings, false)
@@ -4411,8 +4482,8 @@ func _preflight_binding_resources(bindings: Dictionary) -> Dictionary:
 		var resource_path := str(resource_path_variant)
 		if not ResourceLoader.exists(resource_path):
 			return {}
-		var properties := ResourceLoader.load(resource_path) as PillProperties
-		if properties == null:
+		var properties := ResourceLoader.load(resource_path) as Resource
+		if !StateBindingIndex.is_binding_resource(properties):
 			return {}
 		resources[resource_path] = properties
 	return resources
@@ -4422,9 +4493,9 @@ func _binding_values_for_paths(bindings: Dictionary) -> Dictionary:
 	var values: Dictionary = {}
 	for resource_path_variant in bindings.keys():
 		var resource_path := str(resource_path_variant)
-		var properties := ResourceLoader.load(resource_path) as PillProperties
+		var properties := ResourceLoader.load(resource_path) as Resource
 		if properties != null:
-			values[resource_path] = String(properties.activation_state_path)
+			values[resource_path] = String(properties.get(StateBindingIndex.get_property_name()))
 	return values
 
 
@@ -4763,6 +4834,8 @@ func _on_sidebar_item_edited() -> void:
 
 
 func _on_sidebar_gui_input(event: InputEvent) -> void:
+	if !_is_graph_input_enabled():
+		return
 	if not (event is InputEventMouseButton):
 		return
 	var mouse_event := event as InputEventMouseButton
@@ -4811,6 +4884,8 @@ func _focus_sidebar_item(item: TreeItem, physical_column: int) -> bool:
 
 
 func _on_graph_node_gui_input(event: InputEvent, node_id: String) -> void:
+	if !_is_graph_input_enabled():
+		return
 	if event is InputEventMouseButton:
 		var mouse_event := event as InputEventMouseButton
 		if mouse_event.button_index == MOUSE_BUTTON_RIGHT and mouse_event.pressed:
@@ -4825,6 +4900,8 @@ func _on_graph_node_gui_input(event: InputEvent, node_id: String) -> void:
 
 
 func _on_transition_value_row_gui_input(event: InputEvent, target: Dictionary) -> void:
+	if !_is_graph_input_enabled():
+		return
 	pass
 
 
@@ -5087,7 +5164,7 @@ func _commit_state_full_path_rename(old_path: String, new_path: String) -> void:
 	var snapshot := _duplicate_database_arrays()
 	var states: Array = snapshot.get("states", [])
 	var transitions: Array = snapshot.get("transitions", [])
-	var rename_plan := StateVariableRenameScript.plan(states, transitions, PillActivationBindingIndexScript.scan(), old_path, new_path)
+	var rename_plan := StateVariableRenameScript.plan(states, transitions, StateBindingIndex.scan(), old_path, new_path)
 	if not bool(rename_plan.get("ok", false)):
 		_show_rename_failure(str(rename_plan.get("diagnostic", "Unable to rename state.")))
 		return

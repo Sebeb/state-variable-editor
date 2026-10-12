@@ -1,62 +1,78 @@
-# State Variable Editor
+# Shared State Variable System and Editor
 
-A Godot editor plugin for inspecting and editing the state graph used by
-[Pills-God](https://github.com/Sebeb/Pills-God).
+A portable Godot 4 runtime and graph editor, consolidated from Pills-God with
+Adventure Infinitum's compatibility and graph input fixes. `master` is the
+consolidated runtime/editor branch. The historical editor-only `main` remains
+available for existing pinned consumers.
 
-Install this repository at `addons/state_variable_editor`, then enable
-`State Variable Editor` in Godot's Project Settings under Plugins.
+Install as a submodule at `addons/state_variable_system`, then enable the plugin
+in Project Settings. Extend `runtime/state_store.gd` in a host-owned manager or
+add that script as a singleton. Runtime definitions live in
+`res://data/state/state_variable_database.tres`; an absent database creates an
+empty runtime and can be authored through the editor. The database path can be
+overridden with `state_variables/database_path`.
 
-## Host requirements
+The package contains DEFAULT/BASE/claim/OVERRIDE layers, keyed and anonymous
+claims, muting, tags, VECTOR3 and MERGE resolution, batched notifications,
+transitions, entity scopes, baked resource declarations, safe default writers,
+and graph authoring/debugging. It requires no game globals or Logot.
 
-The editor is intentionally a view over a host project's state model. It does
-not own or duplicate that model. Full functionality currently requires these
-host paths:
+## Host integration
 
-- `res://systems/state/state_variable_database.gd`
-- `res://systems/state/state_variable_baker.gd`
-- `res://systems/state/state_claim_slot_def.gd`
-- `res://systems/state/state_transition_condition_def.gd`
-- `res://systems/state/state_transition_def.gd`
-- `res://systems/state/state_transition_output_def.gd`
-- `res://systems/state/state_variable_def.gd`
-- `res://systems/state/state_variable_rename.gd`
-- `res://systems/state/entity_state_machine_template.gd`
-- `res://systems/pills/pill_activation_binding_index.gd`
+Host display policy, startup defaults and legacy preference behavior belong in
+a small subclass. `_initialize_host_defaults()` runs inside the initialization
+batch before persistence is loaded. `StateVariableDef.persistent`,
+`set_claim_value()` and integer-returning `set_current_value()` preserve legacy
+AdInf resources and claim callers. `set_current_value()` replaces ordinary
+claims while retaining BASE/OVERRIDE. The new `reset()` deliberately clears BASE and ordinary claims, retaining
+OVERRIDE. Modern persistence stores BASE and OVERRIDE separately.
 
-The authoring view also scans `res://data/` for entity state-machine template
-resources. Runtime graph inspection expects the host game to implement the
-`state_graph:subscribe`, `state_graph:unsubscribe`, `state_graph:request_snapshot`,
-`state_graph:snapshot`, `state_graph:delta`, and `state_graph:scope_registry`
-debugger messages described in `system-doc.md`.
+Optional seams:
 
-When these requirements are absent, the plugin remains enableable but does not
-install its inspector, graph panel, or debugger integration. This allows a host
-to carry the shared dependency before its state runtime is integrated.
+- Set `state_console.gd.service` (or store `Console`) to a Logot-compatible
+  service. With no console, runtime logging and registration are skipped.
+- Set `state_resource_catalog.gd.provider`, or
+  `state_variables/resource_catalog_script` to a provider script with
+  `get_registered_types()`, `get_entries(type, force_refresh)`,
+  `get_entry(type, base_path)`, and `get_source()`. Entries extend
+  `runtime/state_declaring_resource.gd`. The data root defaults to
+  `res://data/`, configurable through `state_variables/data_root`.
+- Baking writes `res://data/state/generated_state_variables.gd`. Without a
+  catalog, bake is disabled and writes nothing. Export hosts must include the
+  generated artifact; runtime never scans game data to discover declarations.
+- External bindings use `state_binding_index.gd.provider` or
+  `state_variables/binding_index_script`, exposing `scan(root)` and optional
+  `invalidate()`. `state_variables/binding_property` defaults to `state_path`.
+  Rename plans save bindings and restore prior values if a save fails.
+- Populate `state_path_aliases.gd.renamed_paths` and the legacy migration
+  manifest's `path_types`/`migration_targets` for host-specific old saves.
+  Legacy saves without a configured manifest are preserved and migration
+  refuses to overwrite them.
 
-## Attribution
+Do not load duplicate copies of these class_name scripts in one Godot host.
+Consumers previously using `systems/state` should replace those scripts and
+adapt preload paths, keeping game-specific catalog/migration policy in the host.
 
-The initial source was extracted from
-[`Sebeb/Pills-God`](https://github.com/Sebeb/Pills-God) at commit
-`ff0b89d1840cb2a3c411f52a607183a15db1dfcf`.
+## Verification
 
-Files taken from `addons/state_variable_editor/`:
+Run `python3 tests/run.py` (`GODOT=/path/to/godot` selects the executable).
+The disposable host imports the editor with strict Variant inference warnings,
+then exercises layers, claims, muting, VECTOR3, MERGE, batching, isolation,
+legacy migration, provider-backed bake/default resolution, external binding
+rename, and graph lifecycle. No Pills or Logot checkout is needed.
 
-- `plugin.cfg`
-- `plugin.gd`
-- `plugin.gd.uid`
-- `state_graph_debugger_plugin.gd`
-- `state_graph_debugger_plugin.gd.uid`
-- `state_graph_output_picker.gd`
-- `state_graph_output_picker.gd.uid`
-- `state_graph_output_picker.tscn`
-- `state_graph_view.gd`
-- `state_graph_view.gd.uid`
-- `state_graph_view.tscn`
-- `state_variable_database_editor.gd`
-- `state_variable_database_editor.gd.uid`
-- `state_variable_inspector_plugin.gd`
-- `state_variable_inspector_plugin.gd.uid`
-- `system-doc.md`
+Manual checks after a consumer update:
 
-The extraction copied the committed tree at that revision. Uncommitted files
-and changes in the source checkout were not included.
+1. Open the State Graph editor, edit a value, connect a transition, undo and
+   redo; the database and connections should follow each operation.
+2. Open the runtime graph and inspect DEFAULT, BASE, claims and OVERRIDE;
+   changing an override should immediately update the resolved value.
+3. Mute/unmute a claim; its icon and resolved contribution should update.
+4. Hide the graph and use underlying gameplay controls; no graph should
+   intercept input. Transparent presentation must also be input inert.
+5. Restart the host and confirm its preferences and overrides restore without
+   converting DEFAULT preferences into BASE values.
+
+Source revisions and original file hashes are recorded in `provenance.json`.
+Pills source: `844786f6`; AdInf compatibility source: `19d2b13b`. See
+[system-doc.md](system-doc.md) for architecture and integration details.
