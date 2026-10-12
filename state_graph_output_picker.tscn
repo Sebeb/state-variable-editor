@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3]
 
-[ext_resource type="Script" path="res://addons/state_variable_editor/state_graph_output_picker.gd" id="1_picker"]
+[ext_resource type="Script" path="state_graph_output_picker.gd" id="1_picker"]
 
 [node name="StateGraphOutputPicker" type="PopupPanel"]
 custom_minimum_size = Vector2(440, 480)

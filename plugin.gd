@@ -1,20 +1,11 @@
 @tool
 extends EditorPlugin
 
-const REQUIRED_HOST_PATHS := [
-	"res://systems/state/state_variable_database.gd",
-	"res://systems/state/state_variable_baker.gd",
-	"res://systems/state/state_claim_slot_def.gd",
-	"res://systems/state/state_transition_condition_def.gd",
-	"res://systems/state/state_transition_def.gd",
-	"res://systems/state/state_transition_output_def.gd",
-	"res://systems/state/state_variable_def.gd",
-	"res://systems/state/state_variable_rename.gd",
-	"res://systems/state/entity_state_machine_template.gd",
-	"res://systems/pills/pill_activation_binding_index.gd",
-]
-
-var _state_variable_baker_script: GDScript = null
+const InspectorPluginScript = preload("state_variable_inspector_plugin.gd")
+const StateGraphDebuggerPluginScript = preload("state_graph_debugger_plugin.gd")
+const StateGraphViewScene = preload("state_graph_view.tscn")
+const StateVariableDatabaseScript = preload("runtime/state_variable_database.gd")
+const StateVariableBakerScript = preload("runtime/state_variable_baker.gd")
 
 ## Cross-addon lookup groups. Other addons (e.g. pill_editor) have no direct
 ## reference to this plugin, so they find the live dock/plugin instance via
@@ -32,35 +23,16 @@ var _graph_subscription_active := false
 
 
 func _enter_tree() -> void:
-	var missing_paths := _missing_host_paths()
-	if not missing_paths.is_empty():
-		print("State Variable Editor inactive; missing host requirements: %s" % ", ".join(missing_paths))
-		return
-
-	var inspector_plugin_script: GDScript = load(
-		"res://addons/state_variable_editor/state_variable_inspector_plugin.gd"
-	)
-	var state_graph_debugger_plugin_script: GDScript = load(
-		"res://addons/state_variable_editor/state_graph_debugger_plugin.gd"
-	)
-	var state_graph_view_scene: PackedScene = load(
-		"res://addons/state_variable_editor/state_graph_view.tscn"
-	)
-	var state_variable_database_script: GDScript = load(
-		"res://systems/state/state_variable_database.gd"
-	)
-	_state_variable_baker_script = load("res://systems/state/state_variable_baker.gd")
-
-	_inspector_plugin = inspector_plugin_script.new()
+	_inspector_plugin = InspectorPluginScript.new()
 	_inspector_plugin.undo_redo_ref = get_undo_redo()
 	add_inspector_plugin(_inspector_plugin)
 
-	_dock_view = state_graph_view_scene.instantiate()
+	_dock_view = StateGraphViewScene.instantiate()
 	if _dock_view.has_method("set_presentation_mode"):
 		_dock_view.call("set_presentation_mode", "shown")
 	if _dock_view.has_method("set_undo_redo"):
 		_dock_view.call("set_undo_redo", get_undo_redo())
-	var database = state_variable_database_script.load_default_database()
+	var database := StateVariableDatabaseScript.load_default_database()
 	if _dock_view.has_method("set_database"):
 		_dock_view.call("set_database", database)
 	_bottom_panel_button = add_control_to_bottom_panel(_dock_view, "State Graph")
@@ -68,19 +40,11 @@ func _enter_tree() -> void:
 	add_to_group(PLUGIN_GROUP)
 	queue_save_layout()
 
-	_debugger_plugin = state_graph_debugger_plugin_script.new()
+	_debugger_plugin = StateGraphDebuggerPluginScript.new()
 	if _debugger_plugin.has_method("set_target_view"):
 		_debugger_plugin.call("set_target_view", _dock_view)
 	add_debugger_plugin(_debugger_plugin)
 	set_process(true)
-
-
-func _missing_host_paths() -> PackedStringArray:
-	var missing := PackedStringArray()
-	for path in REQUIRED_HOST_PATHS:
-		if not ResourceLoader.exists(path):
-			missing.append(path)
-	return missing
 
 
 func _exit_tree() -> void:
@@ -97,7 +61,6 @@ func _exit_tree() -> void:
 	if _inspector_plugin != null:
 		remove_inspector_plugin(_inspector_plugin)
 		_inspector_plugin = null
-	_state_variable_baker_script = null
 	set_process(false)
 
 
@@ -127,9 +90,7 @@ func reveal_and_focus_node(node_id: String) -> bool:
 ## Silent when nothing changed; [StateVariableBaker] compares the rendered source before
 ## writing, so an unrelated save produces no diff.
 func _save_external_data() -> void:
-	if _state_variable_baker_script == null:
-		return
-	var result: Dictionary = _state_variable_baker_script.bake()
+	var result := StateVariableBakerScript.bake()
 	if not bool(result.get("ok", false)):
 		push_error("State-variable bake failed: %s" % str(result.get("errors", [])))
 		return
